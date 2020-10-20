@@ -65,14 +65,15 @@ choco install mysql -y
 choco install mysql-connector -y
 choco install mysql.workbench -y
 choco install apache-netbeans.portable -y
+choco install openconnect-gui -y
 
 #init database
-[void][system.reflection.Assembly]::LoadFrom(“C:\Program Files (x86)\MySQL\MySQL Connector Net 8.0.21\Assemblies\v4.5.2\MySQL.Data.dll”)
+[void][system.reflection.Assembly]::LoadFrom("C:\Program Files (x86)\MySQL\MySQL Connector Net 8.0.22\Assemblies\v4.5.2\MySQL.Data.dll")
 #Create a variable to hold the connection:
 $myconnection = New-Object MySql.Data.MySqlClient.MySqlConnection
 #Set the connection string:
 $myconnection.ConnectionString = "server=localhost;Persist Security Info=false;user id=root;pwd="
-#Call the Connection object’s Open() method:
+#Call the Connection objectï¿½s Open() method:
 $myconnection.Open()
 
 #uncomment this to print connection properties to the console
@@ -95,4 +96,4 @@ $createcmd.ExecuteNonQuery()
 $myconnection.Close()
 
 #populate data using SQL file
-cmd.exe /c "mysql -u dbuser -p test2 < /vagrant/setup-db.sql" 
+cmd.exe /c "mysql -u root -p test2 < /vagrant/setup-db.sql" 
