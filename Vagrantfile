@@ -16,9 +16,18 @@ Vagrant.configure("2") do |config|
                 "--type", "dvddrive", 
                 "--medium", "emptydrive"]
 
-    # Add sound card (for synthesized speech)
-    vb.customize ["modifyvm", :id, '--audio', 'coreaudio', '--audiocontroller', 'hda']
-
+    # Add sound card (platform specfic)
+    if Vagrant::Util::Platform.windows?
+        # is windows
+        vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
+    elseif Vagrant::Util::Platform.darwin?
+        # is mac
+        vb.customize ["modifyvm", :id, '--audio', 'coreaudio', '--audiocontroller', 'hda']
+    else
+        # is linux or some other OS
+        vb.customize ["modifyvm", :id, "--audio", "pulse", "--audiocontroller", "hda"]
+    end
+    
     # Clipboard sync (copying text is often needed)
     vb.customize ["modifyvm", :id, '--clipboard', 'bidirectional']
   end
@@ -46,8 +55,7 @@ Vagrant.configure("2") do |config|
     dir = File.expand_path("..", __FILE__)
     puts "DIR: #{dir}"
     # now for the real work:
-    win.vm.provision "shell", path: File.join(dir, "init-machine.ps1"), upload_path: "C:/tmp/init-machine_01.ps1"
-
+    win.vm.provision "shell", path: File.join(dir, "init-machine.ps1"), upload_path: "C:/tmp/init-machine_01.ps1", privileged: true, powershell_elevated_interactive: true
     win.vm.provision :reload
   end
 end
