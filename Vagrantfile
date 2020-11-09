@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 TIME = Time.now.strftime('%Y%m%d%H%M%S')
+puts Vagrant::Util::Platform
 
 Vagrant.configure("2") do |config|
 
@@ -17,19 +18,21 @@ Vagrant.configure("2") do |config|
                 "--medium", "emptydrive"]
 
     # Add sound card (platform specfic)
-    if Vagrant::Util::Platform.windows?
-        # is windows
-        vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
-    elseif Vagrant::Util::Platform.darwin?
-        # is mac
+    if RUBY_PLATFORM =~ /darwin/
+        puts 'Determined to be Mac'
         vb.customize ["modifyvm", :id, '--audio', 'coreaudio', '--audiocontroller', 'hda']
+	elseif RUBY_PLATFORM =~ /windows/
+	    puts 'Determined Windows'
+	    vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
     else
-        # is linux or some other OS
+    	puts 'Can not determine OS; Defaulting to Linux'
         vb.customize ["modifyvm", :id, "--audio", "pulse", "--audiocontroller", "hda"]
-    end
+	end
     
     # Clipboard sync (copying text is often needed)
     vb.customize ["modifyvm", :id, '--clipboard', 'bidirectional']
+    #set video memory to 64MB
+    vb.customize ["modifyvm", :id, "--vram", "64"]
   end
   #
   # View the documentation for the provider you are using for more

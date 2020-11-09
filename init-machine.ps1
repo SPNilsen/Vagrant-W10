@@ -66,6 +66,7 @@ choco install mysql-connector -y
 choco install mysql.workbench -y
 choco install apache-netbeans.portable -y
 choco install openconnect-gui -y
+choco install python3 -y
 
 #init database
 [void][system.reflection.Assembly]::LoadFrom("C:\Program Files (x86)\MySQL\MySQL Connector Net 8.0.22\Assemblies\v4.5.2\MySQL.Data.dll")
