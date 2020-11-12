@@ -1,11 +1,16 @@
 
-$testchoco = powershell choco -v
-if(-not($testchoco)){
+$testchoco = $ChocoInstalled = $false
+if (Get-Command choco.exe -ErrorAction SilentlyContinue) {
+    $ChocoInstalled = $true
+}
+
+if($testchoco){
+    $chocover = powershell choco -v
+    Write-Output "Seems Chocolatey is installed : $chocover"
+    } else {
     Write-Output "Seems Chocolatey is not installed, installing now"
     #install chocolatey
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-} else {
-    Write-Output "Seems Chocolatey is installed : $testchoco"
 }
 
 #install sublime text 3
@@ -67,6 +72,20 @@ choco install mysql.workbench -y
 choco install apache-netbeans.portable -y
 choco install openconnect-gui -y
 choco install python3 -y
+choco install nodejs -y
+choco install firefox -y
+choco install postman -y
+choco install ngrok -y
+
+# changed base image to one that has Docker and Visual Studio installed
+#enable linux subsystems and virtualization before installing WSL and Docker
+# dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+# dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+#choco install docker-cli -y
+# choco install wsl2 -y
+# choco install docker-desktop -y
+
 
 #init database
 [void][system.reflection.Assembly]::LoadFrom("C:\Program Files (x86)\MySQL\MySQL Connector Net 8.0.22\Assemblies\v4.5.2\MySQL.Data.dll")
@@ -97,4 +116,4 @@ $createcmd.ExecuteNonQuery()
 $myconnection.Close()
 
 #populate data using SQL file
-cmd.exe /c "mysql -u root -p test2 < /vagrant/setup-db.sql" 
+#cmd.exe /c "mysql -u root -p test2 < /vagrant/setup-db.sql" 

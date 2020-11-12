@@ -1,7 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 TIME = Time.now.strftime('%Y%m%d%H%M%S')
-puts Vagrant::Util::Platform
 
 Vagrant.configure("2") do |config|
 
@@ -9,8 +8,9 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     # Display the VirtualBox GUI when booting the machine
     vb.gui = true
+    vb.cpus = "2"
     vb.name = "devbox_#{TIME}" 
-    vb.memory = "4096"
+    vb.memory = "12000"
     vb.customize ["storageattach", :id, 
                 "--storagectl", "IDE Controller", 
                 "--port", "0", "--device", "1", 
@@ -18,37 +18,28 @@ Vagrant.configure("2") do |config|
                 "--medium", "emptydrive"]
 
     # Add sound card (platform specfic)
-    if RUBY_PLATFORM =~ /darwin/
-        puts 'Determined to be Mac'
+    if Vagrant::Util::Platform.windows?
+        # is windows
+        vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
+    elsif Vagrant::Util::Platform.darwin?
+        # is mac
         vb.customize ["modifyvm", :id, '--audio', 'coreaudio', '--audiocontroller', 'hda']
-	elseif RUBY_PLATFORM =~ /windows/
-	    puts 'Determined Windows'
-	    vb.customize ["modifyvm", :id, '--audio', 'dsound', '--audiocontroller', 'ac97']
     else
-    	puts 'Can not determine OS; Defaulting to Linux'
+        # is linux or some other OS
         vb.customize ["modifyvm", :id, "--audio", "pulse", "--audiocontroller", "hda"]
-	end
+    end
     
     # Clipboard sync (copying text is often needed)
     vb.customize ["modifyvm", :id, '--clipboard', 'bidirectional']
-    #set video memory to 64MB
     vb.customize ["modifyvm", :id, "--vram", "64"]
+    vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
   end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
 
   #config.vm.provision "shell", inline: "\\\\VBOXSVR\\LaSalle-LabVM\\cipc-Admin-fmr.8-6-6-0\\CiscoIPCommunicatorSetup.exe"
   config.vm.define "win" do |win|
-    win.vm.box = ENV['VAGRANT_BOX_WIN'] || "gusztavvargadr/windows-10"
+    #win.vm.box = ENV['VAGRANT_BOX_WIN'] || "gusztavvargadr/windows-10"
+    win.vm.box = "gusztavvargadr/visual-studio"
+    #win.vm.box = "mwrock/Windows2016"
     win.vm.boot_timeout = 15*60 # user interaction is required on first boot
 
     # set up provisioning prerequisities
